@@ -1,12 +1,13 @@
 from rango.models import Page
 from rango.models import Category
 from multiprocessing import context
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from rango.forms import CategoryForm
 from django.shortcuts import redirect
 from rango.forms import PageForm
 from django.urls import reverse
+from django.http.response import HttpResponseNotModified
 
 def index(request):
     # Query the database for a list of ALL categories currently stored.
@@ -27,8 +28,9 @@ def index(request):
 
 def about(request):
 
-    context_dict = {'boldmessage':'This tutorial has been put together by Faris Mohammed' }
-    return render(request, 'rango/about.html', context=context_dict)
+    print(request.method)
+    print(request.user)
+    return render(request, 'rango/about.html')
 
 def show_category(request, category_name_slug):
     # Create a context dictionary which we can pass
@@ -68,7 +70,7 @@ def add_category(request):
         form.save(commit=True)
         # Now that the category is saved, we could confirm this.
         # For now, just redirect the user back to the index view.
-        return redirect('/rango/')
+        return redirect(reverse('rango:index'))
     else:
         # The supplied form contained errors -
         # just print them to the terminal.
@@ -85,7 +87,7 @@ def add_page(request, category_name_slug):
 
     # You cannot add a page to a Category that does not exist...
     if category is None:
-        return redirect('/rango/')
+        return redirect(reverse('rango:index'))
 
     form = PageForm()
 
